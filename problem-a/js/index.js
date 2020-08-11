@@ -42,7 +42,7 @@ function renderTrack(track) {
   record.appendChild(pic);
   return record;
 }
-console.log(renderTrack(EXAMPLE_SEARCH_RESULTS.results[0]));
+//console.log(renderTrack(EXAMPLE_SEARCH_RESULTS.results[0]));
 
 
 //Define a function `renderSearchResults()` that takes in an object with a
@@ -58,14 +58,14 @@ function renderSearchResults(results) {
      recordList.innerHTML = ""; // clear
      let tracks = results.results; // get songs
      if(tracks.length == 0) {
-       let error = new Error("No Results Found");
+       let error = new Error("No results found");
        renderError(error);
      }
      for(let i=0; i<tracks.length; i++) {
       renderTrack(tracks[i]);
      }
 }
-renderSearchResults(EXAMPLE_SEARCH_RESULTS);
+//renderSearchResults(EXAMPLE_SEARCH_RESULTS);
 
 //Now it's the time to practice using `fetch()`! First, modify the `index.html`
 //file to load the polyfills for _BOTH_ the fetch() function and Promises, so
@@ -91,7 +91,8 @@ const URL_TEMPLATE = "https://itunes.apple.com/search?entity=song&limit=25&term=
 
 function fetchTrackList(search) {
   search = URL_TEMPLATE.replace("{searchTerm}", search);
-  fetch(search)  //start the download
+  togglerSpinner();
+  let result = fetch(search) //start the download
     .then(function(response) {  //when done downloading
         let dataPromise = response.json();  //start encoding into an object
         //console.log(response.status);
@@ -105,7 +106,9 @@ function fetchTrackList(search) {
     .catch(function(err) {
           //do something with the error
           renderError(err);  //e.g., show in the console
-    });
+    })
+    .then(togglerSpinner)
+    return result;
 }
 fetchTrackList("queen");
 
@@ -159,7 +162,10 @@ function renderError(error) {
 //spinner (show it) BEFORE you send the AJAX request, and toggle it back off
 //after the ENTIRE request is completed (including after any error catching---
 //download the data and `catch()` the error, and `then()` show the spinner.
-
+function togglerSpinner() {
+  let spin = document.querySelector('.fa-spinner');
+  spin.classList.toggle('d-none');
+}
 
 
 
