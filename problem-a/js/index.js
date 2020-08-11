@@ -33,7 +33,16 @@ const EXAMPLE_SEARCH_RESULTS = {results:[{
 //
 //You can test this function by passing it one of the above array items
 //(e.g., `EXAMPLE_SEARCH_RESULTS.results[0]).
-
+function renderTrack(track) {
+  let record = document.querySelector('#records');
+  let pic = document.createElement('img');
+  pic.src = track.artworkUrl100;
+  pic.alt = track.trackName;
+  pic.title = track.trackName;
+  record.appendChild(pic);
+  return record;
+}
+console.log(renderTrack(EXAMPLE_SEARCH_RESULTS.results[0]));
 
 
 //Define a function `renderSearchResults()` that takes in an object with a
@@ -44,8 +53,19 @@ const EXAMPLE_SEARCH_RESULTS = {results:[{
 //"clear" the previously displayed results first!
 //
 //You can test this function by passing it the `EXAMPLE_SEARCH_RESULTS` object.
-
-
+function renderSearchResults(results) {
+  let recordList = document.querySelector('#records'); // get previous records
+     recordList.innerHTML = ""; // clear
+     let tracks = results.results; // get songs
+     if(tracks.length == 0) {
+       let error = new Error("No Results Found");
+       renderError(error);
+     }
+     for(let i=0; i<tracks.length; i++) {
+      renderTrack(tracks[i]);
+     }
+}
+renderSearchResults(EXAMPLE_SEARCH_RESULTS);
 
 //Now it's the time to practice using `fetch()`! First, modify the `index.html`
 //file to load the polyfills for _BOTH_ the fetch() function and Promises, so
@@ -69,21 +89,53 @@ const EXAMPLE_SEARCH_RESULTS = {results:[{
 //your favorite band (you CANNOT test it with the search button yet!)
 const URL_TEMPLATE = "https://itunes.apple.com/search?entity=song&limit=25&term={searchTerm}";
 
-
-
+function fetchTrackList(search) {
+  search = URL_TEMPLATE.replace("{searchTerm}", search);
+  fetch(search)  //start the download
+    .then(function(response) {  //when done downloading
+        let dataPromise = response.json();  //start encoding into an object
+        //console.log(response.status);
+        return dataPromise;  //hand this Promise up
+    })
+    .then(function(data) {  //when done encoding
+        //console.log(data);
+        //do something with the data!!
+        renderSearchResults(data); //will now be encoded as a JavaScript object!
+    })
+    .catch(function(err) {
+          //do something with the error
+          renderError(err);  //e.g., show in the console
+    });
+}
+fetchTrackList("queen");
 
 //Add an event listener to the "search" button so that when it is clicked (and 
 //the the form is submitted) your `fetchTrackList()` function is called with the
 //user-entered `#searchQuery` value. Use the `preventDefault()` function to keep
 //the form from being submitted as usual (and navigating to a different page).
-
-
+let search = document.querySelector('button');
+search.addEventListener('click', function(event){
+  event.preventDefault();
+  let input = document.querySelector('#searchQuery').value;
+  //console.log(input);
+  //let userInput = URL_TEMPLATE.replace("{searchTerm}", input);
+  fetchTrackList(input);
+  //console.log(userInput);
+})
 
 //Next, add some error handling to the page. Define a function `renderError()`
 //that takes in an "Error object" and displays that object's `message` property
 //on the page. Display this by creating a `<p class="alert alert-danger">` and
 //placing that alert inside the `#records` element.
-
+function renderError(error) {
+  let display = document.createElement('p');
+  display.textContent = error.message;
+  display.classList.add('alert');
+  display.classList.add('alert-danger');
+  let record = document.querySelector('#records');
+  record.appendChild(display);
+  console.log(display);
+}
 
 
 //Add the error handing to your program in two ways:
